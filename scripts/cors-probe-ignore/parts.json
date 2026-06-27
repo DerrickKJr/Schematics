@@ -1,0 +1,20 @@
+{
+  "idea": "cors probe \u2014 ignore",
+  "slug": "cors-probe-ignore",
+  "parts": [
+    {
+      "lcsc": "C21190",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    },
+    {
+      "lcsc": "C84256",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    }
+  ]
+}
