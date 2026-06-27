@@ -1,6 +1,6 @@
-# Modify schematic: blink-an-led-at-3v — 100Ω → 10kΩ
+# Modify schematic: blink-an-led-at-3v — back to 100Ω
 
-**Idea:** Modify schematic: blink-an-led-at-3v — 100Ω → 10kΩ
+**Idea:** Modify schematic: blink-an-led-at-3v — back to 100Ω
 
 ## Parts list
 
@@ -9,7 +9,7 @@ for the (planned) regenerate-on-update workflow.
 
 | Ref | LCSC | Description | Value | Qty |
 | --- | --- | --- | --- | --- |
-| — | C25804 | — | — | 1 |
+| — | C21190 | — | — | 1 |
 | — | C84256 | — | — | 1 |
 
 ## How to run in EasyEDA Pro
