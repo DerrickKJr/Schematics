@@ -1,10 +1,7 @@
-// 3V LED Circuit - EasyEDA Pro Standalone Script
-// Canvas coords confirmed from status bar (inches, Y up from bottom)
-
 eda.sys_MessageBox.showConfirmationMessage(
-  '3V LED Circuit\n\nVCC = 3V | R1 = 100Ω | D1 = LED\n\nPlace on Schematic 1 › P1?',
-  '3V LED Circuit Generator',
-  'Place Circuit',
+  'Update blink-an-led-at-3v: Change R1 from 100Ω (C21190) to 10kΩ (C25804)?',
+  'Modify Schematic',
+  'OK',
   'Cancel',
   async function(confirmed) {
     if (!confirmed) {
@@ -13,46 +10,55 @@ eda.sys_MessageBox.showConfirmationMessage(
     }
 
     try {
-      // All coords in EasyEDA canvas units (inches × 100)
-      // Confirmed positions:
-      //   VCC flag:  (200, 700)
-      //   R1 pins:   top (200, 620), bottom (200, 580)
-      //   LED pins:  top (200, 520), bottom (200, 480)
-      //   GND flag:  (200, 400)
-      const X = 200;
+      eda.sys_ToastMessage.showMessage('Fetching parts...', 2);
 
-      eda.sys_ToastMessage.showMessage('Fetching components...', 2);
-      const devices  = await eda.lib_Device.getByLcscIds(['C21190', 'C84256']);
-      const resistor = devices.find(d => (d.supplierId || d.otherProperty?.['Supplier Part']) === 'C21190');
-      const led      = devices.find(d => (d.supplierId || d.otherProperty?.['Supplier Part']) === 'C84256');
+      const devices = await eda.lib_Device.getByLcscIds(['C25804', 'C84256']);
 
-      if (!resistor) throw new Error('Resistor (C21190) not found');
-      if (!led)      throw new Error('LED (C84256) not found');
+      const resistor = devices.find(d =>
+        (d.supplierId === 'C25804') || (d.otherProperty && d.otherProperty['Supplier Part'] === 'C25804')
+      );
+      const led = devices.find(d =>
+        (d.supplierId === 'C84256') || (d.otherProperty && d.otherProperty['Supplier Part'] === 'C84256')
+      );
 
-      eda.sys_ToastMessage.showMessage('Placing VCC...', 2);
-      await eda.sch_PrimitiveComponent.createNetFlag('Power',  'VCC', X, 700, 0, false);
+      if (!resistor) throw new Error('Could not find 10kΩ resistor (C25804)');
+      if (!led) throw new Error('Could not find LED (C84256)');
 
-      eda.sys_ToastMessage.showMessage('Placing R1...', 2);
+      eda.sys_ToastMessage.showMessage('Placing components...', 2);
+
+      // Layout: vertical chain at X=300
+      // VCC at Y=700, wire down to R1 at Y=600, wire to LED at Y=500, wire to GND at Y=400
+      const X = 300;
+
+      // Place VCC power flag
+      await eda.sch_PrimitiveComponent.createNetFlag('Power', 'VCC', X, 700, 0, false);
+
+      // Wire from VCC down to top of R1
+      await eda.sch_PrimitiveWire.create([X, 700, X, 620]);
+
+      // Place 10kΩ resistor R1 (vertical, rotation 90)
       await eda.sch_PrimitiveComponent.create(resistor, X, 600, '', 90, false, true, true);
 
-      eda.sys_ToastMessage.showMessage('Placing D1...', 2);
-      await eda.sch_PrimitiveComponent.create(led, X, 500, '', 270, false, true, true);
+      // Wire from bottom of R1 to top of LED
+      await eda.sch_PrimitiveWire.create([X, 580, X, 520]);
 
-      eda.sys_ToastMessage.showMessage('Placing GND...', 2);
+      // Place LED D1 (vertical, rotation 90)
+      await eda.sch_PrimitiveComponent.create(led, X, 500, '', 90, false, true, true);
+
+      // Wire from bottom of LED to GND
+      await eda.sch_PrimitiveWire.create([X, 480, X, 400]);
+
+      // Place GND power flag
       await eda.sch_PrimitiveComponent.createNetFlag('Ground', 'GND', X, 400, 0, false);
 
-      // Wires connecting pin-to-pin exactly
-      eda.sys_ToastMessage.showMessage('Drawing wires...', 2);
-      await eda.sch_PrimitiveWire.create([X, 700, X, 620]); // VCC → R1 top pin
-      await eda.sch_PrimitiveWire.create([X, 580, X, 520]); // R1 bottom pin → LED top pin
-      await eda.sch_PrimitiveWire.create([X, 480, X, 400]); // LED bottom pin → GND
-
+      eda.sys_ToastMessage.showMessage('Saving schematic...', 2);
       await eda.sch_Document.save();
-      eda.sys_ToastMessage.showMessage('✅ LED circuit placed!', 3);
 
-    } catch(e) {
+      eda.sys_ToastMessage.showMessage('Done! R1 updated to 10kΩ (C25804). LED will be dimmer.', 4);
+
+    } catch (e) {
       eda.sys_MessageBox.showInformationMessage(
-        'Error: ' + e.message + '\n\n' + e.stack,
+        'Error: ' + e.message + '\n' + e.stack,
         'Script Error'
       );
     }

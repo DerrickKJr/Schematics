@@ -1,18 +1,18 @@
 {
-  "idea": "blink an LED at 3V",
+  "idea": "Modify schematic: blink-an-led-at-3v \u2014 100\u03a9 \u2192 10k\u03a9",
   "slug": "blink-an-led-at-3v",
   "parts": [
     {
-      "lcsc": "C21190",
+      "lcsc": "C25804",
       "ref": "",
-      "description": "resistor",
+      "description": "",
       "value": "",
       "qty": 1
     },
     {
       "lcsc": "C84256",
       "ref": "",
-      "description": "led",
+      "description": "",
       "value": "",
       "qty": 1
     }

@@ -1,11 +1,6 @@
-# 3V LED Circuit - EasyEDA Pro Standalone Script
+# Modify schematic: blink-an-led-at-3v — 100Ω → 10kΩ
 
-**Idea:** blink an LED at 3V
-
-## What this script builds
-
-3V LED Circuit - EasyEDA Pro Standalone Script
-Canvas coords confirmed from status bar (inches, Y up from bottom)
+**Idea:** Modify schematic: blink-an-led-at-3v — 100Ω → 10kΩ
 
 ## Parts list
 
@@ -14,8 +9,8 @@ for the (planned) regenerate-on-update workflow.
 
 | Ref | LCSC | Description | Value | Qty |
 | --- | --- | --- | --- | --- |
-| — | C21190 | resistor | — | 1 |
-| — | C84256 | led | — | 1 |
+| — | C25804 | — | — | 1 |
+| — | C84256 | — | — | 1 |
 
 ## How to run in EasyEDA Pro
 
