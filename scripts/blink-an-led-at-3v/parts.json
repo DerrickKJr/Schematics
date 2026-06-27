@@ -1,0 +1,20 @@
+{
+  "idea": "blink an LED at 3V",
+  "slug": "blink-an-led-at-3v",
+  "parts": [
+    {
+      "lcsc": "C21190",
+      "ref": "",
+      "description": "resistor",
+      "value": "",
+      "qty": 1
+    },
+    {
+      "lcsc": "C84256",
+      "ref": "",
+      "description": "led",
+      "value": "",
+      "qty": 1
+    }
+  ]
+}
