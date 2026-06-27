@@ -9,7 +9,7 @@ for the (planned) regenerate-on-update workflow.
 
 | Ref | LCSC | Description | Value | Qty |
 | --- | --- | --- | --- | --- |
-| — | C21190 | — | — | 1 |
+| — | C25804 | — | — | 1 |
 | — | C84256 | — | — | 1 |
 
 ## How to run in EasyEDA Pro
