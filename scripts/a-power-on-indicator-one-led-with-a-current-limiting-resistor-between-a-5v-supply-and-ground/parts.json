@@ -1,0 +1,27 @@
+{
+  "idea": "a power-on indicator: one LED with a current-limiting resistor between a 5V supply and ground",
+  "slug": "a-power-on-indicator-one-led-with-a-current-limiting-resistor-between-a-5v-supply-and-ground",
+  "parts": [
+    {
+      "lcsc": "C2337",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    },
+    {
+      "lcsc": "C58608",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    },
+    {
+      "lcsc": "C84256",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    }
+  ]
+}

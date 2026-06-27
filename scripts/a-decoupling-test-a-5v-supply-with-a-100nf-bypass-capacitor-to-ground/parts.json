@@ -1,0 +1,20 @@
+{
+  "idea": "a decoupling test: a 5V supply with a 100nF bypass capacitor to ground",
+  "slug": "a-decoupling-test-a-5v-supply-with-a-100nf-bypass-capacitor-to-ground",
+  "parts": [
+    {
+      "lcsc": "C2337",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    },
+    {
+      "lcsc": "C307331",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    }
+  ]
+}

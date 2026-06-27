@@ -1,9 +1,18 @@
 # Add this to the Schematics repo at:  .github/workflows/commit-script.yml
+# Also add the helper tool to the Schematics repo root:  split_script.py
 #
 # SuperPlane's `github.runWorkflow` action dispatches this via workflow_dispatch,
 # passing `idea` and `script` as inputs. It commits the generated EasyEDA Pro
-# standalone script to scripts/<slug>.js using the built-in GITHUB_TOKEN —
-# no PAT, no deploy key, no stored secret.
+# standalone script as a self-describing FOLDER, scripts/<slug>/, using the
+# built-in GITHUB_TOKEN — no PAT, no deploy key, no stored secret.
+#
+#   scripts/<slug>/
+#     script.js   - the runnable script, verbatim
+#     README.md   - what the script is for (derived from the script's comments)
+#     parts.json  - editable LCSC parts list (for the future update workflow)
+#
+# split_script.py derives README.md + parts.json mechanically, so no extra model
+# tokens are spent describing the script or listing its parts.
 name: Commit EasyEDA Script
 
 on:
@@ -30,16 +39,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Write script to scripts/<slug>.js
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Build scripts/<slug>/ folder (script.js + README.md + parts.json)
         run: |
-          slug=$(printf '%s' "$IDEA" \
-            | tr '[:upper:]' '[:lower:]' \
-            | tr -cs 'a-z0-9' '-' \
-            | sed 's/^-*//; s/-*$//')
-          slug=${slug:-circuit}
-          mkdir -p scripts
-          printf '%s' "$SCRIPT" > "scripts/${slug}.js"
-          echo "Wrote scripts/${slug}.js ($(wc -c < "scripts/${slug}.js") bytes)"
+          # Write the raw script to a temp file so quotes/newlines/backticks in the
+          # JS never hit the shell, then let split_script.py do the rest.
+          printf '%s' "$SCRIPT" > /tmp/generated.js
+          python3 split_script.py --idea "$IDEA" --script-file /tmp/generated.js --out scripts
 
       - name: Commit and push
         run: |
