@@ -144,6 +144,12 @@ def main() -> int:
     ap.add_argument("--idea", required=True, help="plain-language circuit idea")
     ap.add_argument("--script-file", help="path to the .js script (else read stdin)")
     ap.add_argument("--out", default="scripts", help="output root dir (default: scripts)")
+    ap.add_argument(
+        "--slug",
+        help="explicit target folder name (overwrite in place). "
+        "Defaults to a slug derived from --idea. Used by the issue/update flow "
+        "to modify an existing schematic folder.",
+    )
     args = ap.parse_args()
 
     if args.script_file:
@@ -155,7 +161,7 @@ def main() -> int:
         print("error: empty script", file=sys.stderr)
         return 1
 
-    slug = slugify(args.idea)
+    slug = slugify(args.slug) if args.slug else slugify(args.idea)
     purpose = extract_header_purpose(script)
     parts = build_parts(script)
 

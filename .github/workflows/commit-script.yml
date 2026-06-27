@@ -24,6 +24,13 @@ on:
       script:
         description: Generated EasyEDA Pro standalone .js content
         required: true
+      issue_body:
+        description: >-
+          Optional. Body of the modification issue. If it contains a line like
+          "Schematic: scripts/<slug>", that <slug> folder is overwritten in place
+          (the update/modify-existing flow). Omitted by the new-build webhook flow.
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -36,6 +43,7 @@ jobs:
       # injection and breakage on quotes/newlines/backticks in the JS.
       IDEA: ${{ inputs.idea }}
       SCRIPT: ${{ inputs.script }}
+      ISSUE_BODY: ${{ inputs.issue_body }}
     steps:
       - uses: actions/checkout@v4
 
@@ -48,7 +56,22 @@ jobs:
           # Write the raw script to a temp file so quotes/newlines/backticks in the
           # JS never hit the shell, then let split_script.py do the rest.
           printf '%s' "$SCRIPT" > /tmp/generated.js
-          python3 split_script.py --idea "$IDEA" --script-file /tmp/generated.js --out scripts
+
+          # Update/modify flow: if the issue body names an existing schematic
+          # ("Schematic: scripts/<slug>"), overwrite that folder in place.
+          # Otherwise split_script.py derives the slug from the idea (new build).
+          slug=$(printf '%s' "$ISSUE_BODY" \
+            | grep -oiE 'scripts/[a-z0-9._-]+' \
+            | head -1 \
+            | sed -E 's#scripts/##')
+
+          if [ -n "$slug" ]; then
+            echo "Modify-in-place: scripts/$slug"
+            python3 split_script.py --idea "$IDEA" --script-file /tmp/generated.js --out scripts --slug "$slug"
+          else
+            echo "New build: slug derived from idea"
+            python3 split_script.py --idea "$IDEA" --script-file /tmp/generated.js --out scripts
+          fi
 
       - name: Commit and push
         run: |
