@@ -102,7 +102,8 @@ def build_parts(script: str) -> list[dict]:
     return parts
 
 
-def render_readme(idea: str, slug: str, purpose: str, parts: list[dict]) -> str:
+def render_readme(idea: str, slug: str, purpose: str, parts: list[dict],
+                  has_spec: bool = False) -> str:
     title = purpose.splitlines()[0] if purpose else idea
     out = [f"# {title}", ""]
     out.append(f"**Idea:** {idea}", )
@@ -111,6 +112,9 @@ def render_readme(idea: str, slug: str, purpose: str, parts: list[dict]) -> str:
         out.append("## What this script builds")
         out.append("")
         out.append(purpose)
+        out.append("")
+    if has_spec:
+        out.append("See [`spec.md`](spec.md) for the design rationale (BOM, net list, calculations).")
         out.append("")
     if parts:
         out.append("## Parts list")
@@ -150,6 +154,11 @@ def main() -> int:
         "Defaults to a slug derived from --idea. Used by the issue/update flow "
         "to modify an existing schematic folder.",
     )
+    ap.add_argument(
+        "--spec-file",
+        help="optional path to the Spec Agent's text; written to spec.md as the "
+        "design rationale. Omitted by the modify flows (which keep any existing spec.md).",
+    )
     args = ap.parse_args()
 
     if args.script_file:
@@ -168,16 +177,29 @@ def main() -> int:
     folder = Path(args.out) / slug
     folder.mkdir(parents=True, exist_ok=True)
 
+    # Write spec.md if a spec was passed (new builds). On the modify flows no spec is
+    # passed, so any existing spec.md is left in place rather than removed.
+    spec_path = folder / "spec.md"
+    wrote_spec = False
+    if args.spec_file:
+        spec = Path(args.spec_file).read_text(encoding="utf-8").strip()
+        if spec:
+            header = f"# Design spec — {args.idea}\n\n_Produced by the Spec Agent._\n\n"
+            spec_path.write_text(header + spec + "\n", encoding="utf-8")
+            wrote_spec = True
+    has_spec = wrote_spec or spec_path.exists()
+
     (folder / "script.js").write_text(script, encoding="utf-8")
     (folder / "parts.json").write_text(
         json.dumps({"idea": args.idea, "slug": slug, "parts": parts}, indent=2) + "\n",
         encoding="utf-8",
     )
     (folder / "README.md").write_text(
-        render_readme(args.idea, slug, purpose, parts), encoding="utf-8"
+        render_readme(args.idea, slug, purpose, parts, has_spec), encoding="utf-8"
     )
 
-    print(f"Wrote {folder}/ (script.js, README.md, parts.json — {len(parts)} parts)")
+    files = "script.js, README.md, parts.json" + (", spec.md" if has_spec else "")
+    print(f"Wrote {folder}/ ({files} — {len(parts)} parts)")
     return 0
 
 

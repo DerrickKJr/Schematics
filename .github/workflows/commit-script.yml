@@ -31,6 +31,12 @@ on:
           (the update/modify-existing flow). Omitted by the new-build webhook flow.
         required: false
         default: ""
+      spec:
+        description: >-
+          Optional. The Spec Agent's design rationale; written to spec.md. Sent by the
+          new-build webhook flow. Omitted by the modify flows, which keep any existing spec.md.
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -44,6 +50,7 @@ jobs:
       IDEA: ${{ inputs.idea }}
       SCRIPT: ${{ inputs.script }}
       ISSUE_BODY: ${{ inputs.issue_body }}
+      SPEC: ${{ inputs.spec }}
     steps:
       - uses: actions/checkout@v4
 
@@ -57,6 +64,13 @@ jobs:
           # JS never hit the shell, then let split_script.py do the rest.
           printf '%s' "$SCRIPT" > /tmp/generated.js
 
+          # Spec rationale (new builds only) -> spec.md. Empty on the modify flows.
+          spec_arg=""
+          if [ -n "$SPEC" ]; then
+            printf '%s' "$SPEC" > /tmp/spec.md
+            spec_arg="--spec-file /tmp/spec.md"
+          fi
+
           # Update/modify flow: if the issue body names an existing schematic
           # ("Schematic: scripts/<slug>"), overwrite that folder in place.
           # Otherwise split_script.py derives the slug from the idea (new build).
@@ -67,10 +81,10 @@ jobs:
 
           if [ -n "$slug" ]; then
             echo "Modify-in-place: scripts/$slug"
-            python3 split_script.py --idea "$IDEA" --script-file /tmp/generated.js --out scripts --slug "$slug"
+            python3 split_script.py --idea "$IDEA" --script-file /tmp/generated.js --out scripts --slug "$slug" $spec_arg
           else
             echo "New build: slug derived from idea"
-            python3 split_script.py --idea "$IDEA" --script-file /tmp/generated.js --out scripts
+            python3 split_script.py --idea "$IDEA" --script-file /tmp/generated.js --out scripts $spec_arg
           fi
 
       - name: Commit and push
