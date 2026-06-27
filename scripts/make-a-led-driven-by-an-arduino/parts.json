@@ -1,0 +1,20 @@
+{
+  "idea": "make a led driven by an arduino",
+  "slug": "make-a-led-driven-by-an-arduino",
+  "parts": [
+    {
+      "lcsc": "C58678",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    },
+    {
+      "lcsc": "C84256",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    }
+  ]
+}
