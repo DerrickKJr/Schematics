@@ -1,0 +1,54 @@
+# Add this to the Schematics repo at:  .github/workflows/commit-script.yml
+#
+# SuperPlane's `github.runWorkflow` action dispatches this via workflow_dispatch,
+# passing `idea` and `script` as inputs. It commits the generated EasyEDA Pro
+# standalone script to scripts/<slug>.js using the built-in GITHUB_TOKEN —
+# no PAT, no deploy key, no stored secret.
+name: Commit EasyEDA Script
+
+on:
+  workflow_dispatch:
+    inputs:
+      idea:
+        description: Plain-language circuit idea (used for the filename + commit message)
+        required: true
+      script:
+        description: Generated EasyEDA Pro standalone .js content
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    env:
+      # Pass inputs through the environment, never inline in run: — avoids shell
+      # injection and breakage on quotes/newlines/backticks in the JS.
+      IDEA: ${{ inputs.idea }}
+      SCRIPT: ${{ inputs.script }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write script to scripts/<slug>.js
+        run: |
+          slug=$(printf '%s' "$IDEA" \
+            | tr '[:upper:]' '[:lower:]' \
+            | tr -cs 'a-z0-9' '-' \
+            | sed 's/^-*//; s/-*$//')
+          slug=${slug:-circuit}
+          mkdir -p scripts
+          printf '%s' "$SCRIPT" > "scripts/${slug}.js"
+          echo "Wrote scripts/${slug}.js ($(wc -c < "scripts/${slug}.js") bytes)"
+
+      - name: Commit and push
+        run: |
+          git config user.name  "superplane-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add scripts/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Add verified EasyEDA script: $IDEA"
+          git push
