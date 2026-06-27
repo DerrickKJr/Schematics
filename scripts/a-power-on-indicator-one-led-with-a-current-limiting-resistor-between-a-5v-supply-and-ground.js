@@ -10,7 +10,7 @@ eda.sys_MessageBox.showConfirmationMessage(
     }
 
     try {
-      eda.sys_ToastMessage.showMessage('Fetching parts from library...', 3);
+      eda.sys_ToastMessage.showMessage('Fetching parts from library...', 2);
 
       const devices = await eda.lib_Device.getByLcscIds(['C2337', 'C58608', 'C84256']);
 
@@ -28,56 +28,53 @@ eda.sys_MessageBox.showConfirmationMessage(
       if (!r1Part) throw new Error('Could not find R1 (C58608) in library.');
       if (!ledPart) throw new Error('Could not find LED1 (C84256) in library.');
 
-      eda.sys_ToastMessage.showMessage('Parts found. Placing schematic...', 3);
+      eda.sys_ToastMessage.showMessage('Placing components...', 2);
 
-      // ── Layout (vertical chain, X = 300) ──────────────────────────────────
-      //
-      //  VCC flag      Y = 750
-      //  wire          750 → 700
-      //  J1            Y = 680  (pins at 700, 660)
-      //  wire          660 → 620
-      //  R1            Y = 600  (pins at 620, 580)
-      //  wire          580 → 520
-      //  LED1          Y = 500  (pins at 520, 480)
-      //  wire          480 → 420
-      //  GND flag      Y = 420
-      //
+      // Layout (vertical chain at X=300):
+      // VCC flag   Y=750
+      // wire       750 -> 700
+      // J1         Y=680  (2-pin header, vertical, pins at ~700 and ~660)
+      // wire       660 -> 600
+      // R1         Y=580  (pins at 600 and 560)
+      // wire       560 -> 500
+      // LED1       Y=480  (pins at 500 and 460)
+      // wire       460 -> 400
+      // GND flag   Y=400
+
       const X = 300;
 
-      // VCC power flag
+      // Place VCC power flag at top
       await eda.sch_PrimitiveComponent.createNetFlag('Power', 'VCC', X, 750, 0, false);
-      eda.sys_ToastMessage.showMessage('VCC flag placed.', 1);
 
-      // Wire: VCC flag → J1 top pin
+      // Place J1 (2-pin header) — vertical, centred at Y=680
+      await eda.sch_PrimitiveComponent.create(j1Part, X, 680, '', 90, false, true, true);
+
+      // Place R1 (150 ohm resistor) — vertical, centred at Y=580
+      await eda.sch_PrimitiveComponent.create(r1Part, X, 580, '', 90, false, true, true);
+
+      // Place LED1 — vertical, centred at Y=480
+      await eda.sch_PrimitiveComponent.create(ledPart, X, 480, '', 90, false, true, true);
+
+      // Place GND power flag at bottom
+      await eda.sch_PrimitiveComponent.createNetFlag('Ground', 'GND', X, 400, 0, false);
+
+      eda.sys_ToastMessage.showMessage('Drawing wires...', 2);
+
+      // Wire: VCC flag (Y=750) down to J1 top pin (Y=700)
       await eda.sch_PrimitiveWire.create([X, 750, X, 700]);
 
-      // J1 – 2-pin header (rotation 90 = vertical, pin1 top)
-      await eda.sch_PrimitiveComponent.create(j1Part, X, 680, '', 90, false, true, true);
-      eda.sys_ToastMessage.showMessage('J1 placed.', 1);
+      // Wire: J1 bottom pin (Y=660) down to R1 top pin (Y=600)
+      await eda.sch_PrimitiveWire.create([X, 660, X, 600]);
 
-      // Wire: J1 bottom pin → R1 top pin
-      await eda.sch_PrimitiveWire.create([X, 660, X, 620]);
+      // Wire: R1 bottom pin (Y=560) down to LED1 anode (Y=500)
+      await eda.sch_PrimitiveWire.create([X, 560, X, 500]);
 
-      // R1 – 150 Ω resistor (rotation 90 = vertical)
-      await eda.sch_PrimitiveComponent.create(r1Part, X, 600, '', 90, false, true, true);
-      eda.sys_ToastMessage.showMessage('R1 placed.', 1);
+      // Wire: LED1 cathode (Y=460) down to GND flag (Y=400)
+      await eda.sch_PrimitiveWire.create([X, 460, X, 400]);
 
-      // Wire: R1 bottom pin → LED1 anode
-      await eda.sch_PrimitiveWire.create([X, 580, X, 520]);
-
-      // LED1 – red LED (rotation 90 = vertical, anode top)
-      await eda.sch_PrimitiveComponent.create(ledPart, X, 500, '', 90, false, true, true);
-      eda.sys_ToastMessage.showMessage('LED1 placed.', 1);
-
-      // Wire: LED1 cathode → GND flag
-      await eda.sch_PrimitiveWire.create([X, 480, X, 420]);
-
-      // GND power flag
-      await eda.sch_PrimitiveComponent.createNetFlag('Ground', 'GND', X, 420, 0, false);
-      eda.sys_ToastMessage.showMessage('GND flag placed.', 1);
-
-      // Save
+      eda.sys_ToastMessage.showMessage('Saving schematic...', 2);
       await eda.sch_Document.save();
+
       eda.sys_ToastMessage.showMessage('Power-On Indicator schematic complete!', 4);
 
     } catch (e) {
