@@ -1,0 +1,34 @@
+{
+  "idea": "Create a led circuit with a switch",
+  "slug": "create-a-led-circuit-with-a-switch",
+  "parts": [
+    {
+      "lcsc": "C65114",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    },
+    {
+      "lcsc": "C318884",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    },
+    {
+      "lcsc": "C17557",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    },
+    {
+      "lcsc": "C84256",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    }
+  ]
+}
