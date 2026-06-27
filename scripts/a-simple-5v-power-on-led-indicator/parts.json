@@ -1,0 +1,27 @@
+{
+  "idea": "a simple 5V power-on LED indicator",
+  "slug": "a-simple-5v-power-on-led-indicator",
+  "parts": [
+    {
+      "lcsc": "C65114",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    },
+    {
+      "lcsc": "C17557",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    },
+    {
+      "lcsc": "C84256",
+      "ref": "",
+      "description": "",
+      "value": "",
+      "qty": 1
+    }
+  ]
+}
